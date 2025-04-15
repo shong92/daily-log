@@ -119,7 +119,7 @@
     }
 
     .log-entry-content {
-      padding-right: 60px; /* 공간 확보 */
+      padding-right: 60px;
     }
 
     .time {
@@ -155,65 +155,12 @@
   </style>
 </head>
 <body>
-  <script>
-    const correctHash = "5dfa4c51dcc091801d8a6b6d2aed69119239a1f4e458cc06a326c6a9b0a09576"; // 비밀번호 해시
-    const unlockHash = "d0832287613be2ffed93a1c523735101c21d3b2b457a3d1d93f211544bb0583a"; // 잠금 해제 비밀번호 해시
-  
-    async function sha256(text) {
-      const encoded = new TextEncoder().encode(text);
-      const buffer = await crypto.subtle.digest("SHA-256", encoded);
-      return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, "0")).join("");
-    }
-  
-    async function promptPassword() {
-      if (localStorage.getItem("dailyLogUnlocked") === "true") return;
-  
-      if (localStorage.getItem("lockout") === "true") {
-        const unlockInput = prompt("🔒 잠금이 설정되었습니다. 잠금 해제 비밀번호를 입력하세요:");
-        const unlockTry = await sha256(unlockInput);
-        if (unlockTry === unlockHash) {
-          localStorage.removeItem("lockout");
-          localStorage.setItem("loginAttempts", "0");
-          alert("잠금이 해제되었습니다. 다시 로그인 해주세요.");
-          promptPassword();
-          return;
-        } else {
-          document.body.innerHTML = "<h2 style='text-align:center; color:red;'>잠금 해제 실패</h2>";
-          throw new Error("잠금 해제 실패");
-        }
-      }
-  
-      let attempts = parseInt(localStorage.getItem("loginAttempts") || "0");
-      while (attempts < 3) {
-        const input = prompt("🔒 비밀번호를 입력하세요 (4자리):");
-        const hashed = await sha256(input);
-        if (hashed === correctHash) {
-          localStorage.setItem("dailyLogUnlocked", "true");
-          return;
-        } else {
-          attempts++;
-          localStorage.setItem("loginAttempts", attempts);
-          alert(`비밀번호가 틀렸습니다. (${attempts}/3)`);
-        }
-      }
-  
-      localStorage.setItem("lockout", "true");
-      document.body.innerHTML = "<h2 style='text-align:center; color:red;'>잠금되었습니다. 잠금 해제 후 다시 시도하세요.</h2>";
-      throw new Error("잠금됨");
-    }
-  
-    await promptPassword();
-  
   <div class="wrapper">
     <div class="container">
       <button class="dark-toggle" onclick="toggleDarkMode()">🌙</button>
-
       <h2>📝 기획세포 일일로그</h2>
-
       <input type="date" id="dateFilter" onchange="filterLogs()" />
-
-      <textarea id="logText" placeholder="오늘의 활동을 입력하세요..."></textarea>
-
+      <textarea id="logText" placeholder="🌊오늘의 활동을 입력하세요..."></textarea>
       <div class="emoji-picker">
         <span class="emoji" onclick="insertEmoji('😊')">😊</span>
         <span class="emoji" onclick="insertEmoji('🔥')">🔥</span>
@@ -221,101 +168,147 @@
         <span class="emoji" onclick="insertEmoji('✏️')">✏️</span>
         <span class="emoji" onclick="insertEmoji('✅')">✅</span>
         <span class="emoji" onclick="insertEmoji('✨')">✨</span>
-        <span class="emoji" onclick="insertEmoji('⚡')">⚡</span>
+        <span class="emoji" onclick="insertEmoji('💕')">💕</span>
       </div>
-
-      <button onclick="saveLog()">✅ 기록하기</button>
-
+      <button onclick="saveLog()">✅기록하기</button>
       <div id="logList"></div>
     </div>
   </div>
 
-    const logKey = "dailyLogData";
-    const darkKey = "logAppDarkMode";
+  <script>
+    (async () => {
+      const correctHash = "5dfa4c51dcc091801d8a6b6d2aed69119239a1f4e458cc06a326c6a9b0a09576";
+      const unlockHash = "d0832287613be2ffed93a1c523735101c21d3b2b457a3d1d93f211544bb0583a";
 
-    function loadLogs() {
-      return JSON.parse(localStorage.getItem(logKey)) || [];
-    }
+      async function sha256(text) {
+        const encoded = new TextEncoder().encode(text);
+        const buffer = await crypto.subtle.digest("SHA-256", encoded);
+        return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+      }
 
-    function saveLog() {
-      const text = document.getElementById('logText').value.trim();
-      if (!text) return;
+      async function promptPassword() {
+        if (localStorage.getItem("dailyLogUnlocked") === "true") return;
 
-      const now = new Date();
-      const date = now.toISOString().slice(0, 10);
-      const time = now.toLocaleTimeString();
-      const id = Date.now();
+        if (localStorage.getItem("lockout") === "true") {
+          const unlockInput = prompt("🔒 잠금이 설정되었습니다. 잠금 해제 비밀번호를 입력하세요:");
+          const unlockTry = await sha256(unlockInput);
+          if (unlockTry === unlockHash) {
+            localStorage.removeItem("lockout");
+            localStorage.setItem("loginAttempts", "0");
+            alert("잠금이 해제되었습니다. 다시 로그인 해주세요.");
+            return promptPassword();
+          } else {
+            document.body.innerHTML = "<h2 style='text-align:center; color:red;'>잠금 해제 실패</h2>";
+            throw new Error("잠금 해제 실패");
+          }
+        }
 
-      const newLog = { id, text, date, time };
-      const logs = loadLogs();
-      logs.push(newLog);
-      localStorage.setItem(logKey, JSON.stringify(logs));
+        let attempts = parseInt(localStorage.getItem("loginAttempts") || "0");
+        while (attempts < 3) {
+          const input = prompt("🔒 비밀번호를 입력하세요 (4자리):");
+          const hashed = await sha256(input);
+          if (hashed === correctHash) {
+            localStorage.setItem("dailyLogUnlocked", "true");
+            return;
+          } else {
+            attempts++;
+            localStorage.setItem("loginAttempts", attempts);
+            alert(`비밀번호가 틀렸습니다. (${attempts}/3)`);
+          }
+        }
 
-      document.getElementById('logText').value = '';
-      filterLogs();
-    }
+        localStorage.setItem("lockout", "true");
+        document.body.innerHTML = "<h2 style='text-align:center; color:red;'>잠금되었습니다. 잠금 해제 후 다시 시도하세요.</h2>";
+        throw new Error("잠금됨");
+      }
 
-    function deleteLog(id) {
-      let logs = loadLogs();
-      logs = logs.filter(log => log.id !== id);
-      localStorage.setItem(logKey, JSON.stringify(logs));
-      filterLogs();
-    }
+      await promptPassword();
 
-    function renderLogs(filteredLogs) {
-      const logList = document.getElementById('logList');
-      logList.innerHTML = '';
-      filteredLogs.reverse().forEach(({ id, text, date, time }) => {
-        const logHTML = `
-          <div class="log-entry">
-            <div class="log-entry-content">
-              <div class="time">${date} ${time}</div>
-              <div>${text}</div>
-            </div>
-            <button class="delete-btn" onclick="deleteLog(${id})">삭제</button>
-          </div>`;
-        logList.insertAdjacentHTML('beforeend', logHTML);
+      // ====== 일일로그 기능 ======
+      const logKey = "dailyLogData";
+      const darkKey = "logAppDarkMode";
+
+      function loadLogs() {
+        return JSON.parse(localStorage.getItem(logKey)) || [];
+      }
+
+      function saveLog() {
+        const text = document.getElementById('logText').value.trim();
+        if (!text) return;
+        const now = new Date();
+        const date = now.toISOString().slice(0, 10);
+        const time = now.toLocaleTimeString();
+        const id = Date.now();
+        const newLog = { id, text, date, time };
+        const logs = loadLogs();
+        logs.push(newLog);
+        localStorage.setItem(logKey, JSON.stringify(logs));
+        document.getElementById('logText').value = '';
+        filterLogs();
+      }
+
+      function deleteLog(id) {
+        let logs = loadLogs();
+        logs = logs.filter(log => log.id !== id);
+        localStorage.setItem(logKey, JSON.stringify(logs));
+        filterLogs();
+      }
+
+      function renderLogs(filteredLogs) {
+        const logList = document.getElementById('logList');
+        logList.innerHTML = '';
+        filteredLogs.reverse().forEach(({ id, text, date, time }) => {
+          const logHTML = `
+            <div class="log-entry">
+              <div class="log-entry-content">
+                <div class="time">${date} ${time}</div>
+                <div>${text}</div>
+              </div>
+              <button class="delete-btn" onclick="deleteLog(${id})">삭제</button>
+            </div>`;
+          logList.insertAdjacentHTML('beforeend', logHTML);
+        });
+      }
+
+      function filterLogs() {
+        const selectedDate = document.getElementById('dateFilter').value;
+        const allLogs = loadLogs();
+        const filtered = selectedDate
+          ? allLogs.filter(log => log.date === selectedDate)
+          : allLogs;
+        renderLogs(filtered);
+      }
+
+      document.getElementById('logText').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          saveLog();
+        }
       });
-    }
 
-    function filterLogs() {
-      const selectedDate = document.getElementById('dateFilter').value;
-      const allLogs = loadLogs();
-      const filtered = selectedDate
-        ? allLogs.filter(log => log.date === selectedDate)
-        : allLogs;
-      renderLogs(filtered);
-    }
+      window.insertEmoji = function(emoji) {
+        const textarea = document.getElementById('logText');
+        textarea.value += emoji;
+        textarea.focus();
+      };
 
-    document.getElementById('logText').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        saveLog();
+      window.toggleDarkMode = function() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        localStorage.setItem(darkKey, isDark ? "true" : "false");
+      };
+
+      function loadDarkMode() {
+        const saved = localStorage.getItem(darkKey);
+        if (saved === "true") {
+          document.body.classList.add('dark');
+        }
       }
-    });
 
-    function insertEmoji(emoji) {
-      const textarea = document.getElementById('logText');
-      textarea.value += emoji;
-      textarea.focus();
-    }
-
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark');
-      const isDark = document.body.classList.contains('dark');
-      localStorage.setItem(darkKey, isDark ? "true" : "false");
-    }
-
-    function loadDarkMode() {
-      const saved = localStorage.getItem(darkKey);
-      if (saved === "true") {
-        document.body.classList.add('dark');
-      }
-    }
-
-    loadDarkMode();
-    filterLogs();
+      loadDarkMode();
+      filterLogs();
+    })();
   </script>
-
 </body>
 </html>
+
