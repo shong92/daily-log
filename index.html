@@ -119,7 +119,6 @@
       display: none;
       position: absolute;
       right: 10px;
-      top: 10px;
       width: auto;
       height: auto;
       margin: 0;
@@ -161,7 +160,7 @@
         <span class="tag tag-일상" onclick="insertTag('일상')">일상</span>
         <span class="tag tag-기타" onclick="insertTag('기타')">기타</span>
       </div>
-      <button onclick="saveLog()">🤿기록하기</button>
+      <button onclick="saveLog()">🤿 기록하기</button>
       <select id="tagFilter" onchange="filterLogs()" style="width: 80px; min-width: 60px; padding: 8px; font-size: 1em;">
         <option value="">전체</option>
         <option value="업무">업무</option>
@@ -212,7 +211,7 @@ function deleteLog(id) {
   filterLogs();
 }
 function deleteAllLogs() {
-  if (confirm("정말 모든 기록을 삭제하시겠습니까?")) {
+  if (confirm("ㄹㅇ 삭제할 지 한번 더 생각해. 삭제할겨?")) {
     localStorage.removeItem("dailyLogData");
     filterLogs();
   }
