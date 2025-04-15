@@ -146,7 +146,21 @@
 <body>
 <div class="wrapper">
 <div class="container"><button class="dark-toggle" onclick="toggleDarkMode(this)" style="position: absolute; top: 10px; left: 10px;">🌙</button>
-    <button onclick="deleteAllLogs()" style="position: absolute; top: 10px; right: 10px; background: none; border: none; width: auto; font-size: 1.1em; cursor: pointer; padding: 0;" title="전체삭제">🗑️</button>
+<button
+  onclick="deleteAllLogs()"
+  style="
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    padding: 0;
+    width: auto;
+    display: inline-block;
+    cursor: pointer;"
+  title="전체삭제"
+>🗑️</button>
 <h2>📝 기획세포 일일로그</h2>
 <input id="dateFilter" onchange="filterLogs()" type="date"/>
 <textarea id="logText" placeholder="오늘의 활동을 입력하세요..."></textarea>
