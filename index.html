@@ -1,12 +1,11 @@
 
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>기획세포 일일로그</title>
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>기획세포 일일로그</title>
+  <style>
     :root {
       --bg: #f8f8f8;
       --fg: #000;
@@ -46,19 +45,19 @@
       position: relative;
     }
     .dark-toggle {
-      padding: 0px;
-      margin: 0;
-      position: fixed;
+      position: absolute;
       top: 10px;
-      left: 1px;
+      left: 10px;
       width: auto;
       height: auto;
-      z-index: 1000;
-      font-size: 1.2em;
-      background: none;
+      padding: 0px;
+      margin: 0;
       border: none;
-      cursor: pointer;
+      background: none;
+      font-size: 1.2em;
       color: var(--fg);
+      cursor: pointer;
+      z-index: 1000;
     }
     h2 {
       font-size: 1.5em;
@@ -85,22 +84,29 @@
       opacity: 0.9;
     }
     .emoji-picker {
-      margin-top: 5px;
+      margin-top: 10px;
       display: flex;
+      gap: 6px;
       flex-wrap: wrap;
-      gap: 5px;
     }
-    .emoji {
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: bold;
+      color: white;
       cursor: pointer;
-      font-size: 1.3em;
     }
+    .tag-업무 { background-color: #2d87f0; }
+    .tag-학습 { background-color: #4caf50; }
+    .tag-운동 { background-color: #ff9800; }
+    .tag-일상 { background-color: #9c27b0; }
+    .tag-기타 { background-color: #607d8b; }
     .log-entry {
       border-bottom: 1px solid var(--entry-border);
       padding: 10px 0;
       position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
     }
     .log-entry-content {
       padding-right: 60px;
@@ -112,99 +118,81 @@
     .delete-btn {
       display: none;
       position: absolute;
-      right: 1px;
+      right: 10px;
       top: 10px;
-      padding: 0px 4px;
       width: auto;
+      height: auto;
+      margin: 0;
       font-size: 1.1em;
-      color: var(--accent);
       background: none;
       border: none;
-      border-radius: 50%;
       cursor: pointer;
-      white-space: nowrap;
+      padding: 0;
     }
     .log-entry:hover .delete-btn {
       display: inline-block;
     }
-    .tag {
-      display: inline-block;
-      margin-left: 5px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.8em;
-      font-weight: bold;
-      color: white;
-    }
-    .tag-업무 { background-color: #2d87f0; }
-    .tag-학습 { background-color: #4caf50; }
-    .tag-운동 { background-color: #ff9800; }
-    .tag-일상 { background-color: #9c27b0; }
-    .tag-기타 { background-color: #607d8b; }
   </style>
 </head>
 <body>
-<div class="wrapper">
-<div class="container"><button class="dark-toggle" onclick="toggleDarkMode(this)" style="position: absolute; top: 10px; left: 10px;">🌙</button>
-<button
-  onclick="deleteAllLogs()"
-  style="
-    position: absolute;
-    top: 10px;
-    right: 1px;
-    background: none;
-    border: none;
-    font-size: 1.1em;
-    padding: 0;
-    width: auto;
-    display: inline-block;
-    cursor: pointer;"
-  title="전체삭제"
->🗑️</button>
-<h2>📝 기획세포 일일로그</h2>
-<input id="dateFilter" onchange="filterLogs()" type="date"/>
-<textarea id="logText" placeholder="🌊오늘의 활동을 입력하세요..."></textarea>
-<div class="emoji-picker">
-<span class="emoji" onclick="insertEmoji('😊')">😊</span>
-<span class="emoji" onclick="insertEmoji('🔥')">🔥</span>
-<span class="emoji" onclick="insertEmoji('💡')">💡</span>
-<span class="emoji" onclick="insertEmoji('✏️')">✏️</span>
-<span class="emoji" onclick="insertEmoji('✅')">✅</span>
-<span class="emoji" onclick="insertEmoji('✨')">✨</span>
-<span class="emoji" onclick="insertEmoji('💕')">💕</span>
-</div>
-<button onclick="saveLog()">🤿 기록하기</button><div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;"><select id="tagFilter" onchange="filterLogs()" style="width: 80px; min-width: 60px; padding: 8px; font-size: 1em;">
-<option value="">전체</option>
-<option value="업무">업무</option>
-<option value="학습">학습</option>
-<option value="운동">운동</option>
-<option value="일상">일상</option>
-<option value="기타">기타</option>
-</select><input id="searchInput" oninput="filterLogs()" placeholder="검색어를 입력하세요" type="text"/></div>
-<div id="logList"></div>
-</div>
-</div>
+  <div class="wrapper">
+    <div class="container">
+      <button class="dark-toggle" onclick="toggleDarkMode(this)">🌙</button>
+      <button onclick="deleteAllLogs()" title="전체삭제" style="
+          position: absolute; 
+          top: 10px; 
+          right: 10px; 
+          background: none; 
+          width: auto;
+          height: auto;
+          margin: 0;
+          border: none; 
+          font-size: 1.2em; 
+          cursor: pointer; 
+          padding: 0;
+          ">🗑️</button>
+      <h2>📝 기획세포 일일로그</h2>
+      <input type="date" id="dateFilter" onchange="filterLogs()" />
+      <textarea id="logText" placeholder="🌊오늘의 활동을 입력하세요..."></textarea>
+      <div class="emoji-picker">
+        <span class="tag tag-업무" onclick="insertTag('업무')">업무</span>
+        <span class="tag tag-학습" onclick="insertTag('학습')">학습</span>
+        <span class="tag tag-운동" onclick="insertTag('운동')">운동</span>
+        <span class="tag tag-일상" onclick="insertTag('일상')">일상</span>
+        <span class="tag tag-기타" onclick="insertTag('기타')">기타</span>
+      </div>
+      <button onclick="saveLog()">🤿기록하기</button>
+      <select id="tagFilter" onchange="filterLogs()" style="width: 80px; min-width: 60px; padding: 8px; font-size: 1em;">
+        <option value="">전체</option>
+        <option value="업무">업무</option>
+        <option value="학습">학습</option>
+        <option value="운동">운동</option>
+        <option value="일상">일상</option>
+        <option value="기타">기타</option>
+      </select>
+      <input type="text" id="searchInput" placeholder="검색어를 입력하세요" oninput="filterLogs()" />
+      <div id="logList"></div>
+    </div>
+  </div>
+
 <script>
 function toggleDarkMode(btn) {
-  btn.textContent = document.body.classList.contains('dark') ? '🌙' : '☀️';
   document.body.classList.toggle("dark");
+  btn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
   localStorage.setItem("darkMode", document.body.classList.contains("dark"));
 }
-
 if (localStorage.getItem("darkMode") === "true") {
   document.body.classList.add("dark");
 }
 
-function insertEmoji(emoji) {
+function insertTag(tag) {
   const textarea = document.getElementById("logText");
-  textarea.value += emoji;
+  textarea.value += " #" + tag;
   textarea.focus();
 }
-
 function loadLogs() {
   return JSON.parse(localStorage.getItem("dailyLogData") || "[]");
 }
-
 function saveLog() {
   const text = document.getElementById("logText").value.trim();
   if (!text) return;
@@ -217,20 +205,23 @@ function saveLog() {
   document.getElementById("logText").value = "";
   filterLogs();
 }
-
 function deleteLog(id) {
   let logs = loadLogs();
   logs = logs.filter(log => log.id !== id);
   localStorage.setItem("dailyLogData", JSON.stringify(logs));
   filterLogs();
 }
-
+function deleteAllLogs() {
+  if (confirm("정말 모든 기록을 삭제하시겠습니까?")) {
+    localStorage.removeItem("dailyLogData");
+    filterLogs();
+  }
+}
 function filterLogs() {
   const logs = loadLogs();
   const selectedDate = document.getElementById("dateFilter").value;
   const searchKeyword = document.getElementById("searchInput").value.toLowerCase();
   const selectedTag = document.getElementById("tagFilter").value;
-
   let filtered = logs;
 
   if (selectedDate) {
@@ -257,23 +248,13 @@ function filterLogs() {
       </div>`;
   });
 }
-
 document.getElementById("logText").addEventListener("keydown", function(e) {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     saveLog();
   }
 });
-
 filterLogs();
-
-
-function deleteAllLogs() {
-  if (confirm("정말 모든 기록을 삭제하시겠습니까?")) {
-    localStorage.removeItem("dailyLogData");
-    filterLogs();
-  }
-}
 </script>
 </body>
 </html>
