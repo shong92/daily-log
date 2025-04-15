@@ -46,9 +46,24 @@
       position: relative;
     }
     .dark-toggle {
+  position: fixed;
+  top: 10px;
+  left: 1px;
+  width: auto;
+  height: auto;
+  padding: 0px;
+  margin: 0;
+  border: none;
+  background: none;
+  font-size: 1.2em;
+  color: var(--fg);
+  cursor: pointer;
+  z-index: 1000;
       position: fixed;
-      top: 5px;
-      right: 5px;
+      top: 10px;
+      left: 1px;
+      width: auto;
+      height: auto;
       z-index: 1000;
       font-size: 1.2em;
       background: none;
@@ -109,8 +124,9 @@
       display: none;
       position: absolute;
       right: 1px;
-      top: 1px;
+      top: 10px;
       padding: 0px 4px;
+      width: auto;
       font-size: 1.1em;
       color: var(--accent);
       background: none;
@@ -139,9 +155,8 @@
   </style>
 </head>
 <body>
-<button class="dark-toggle" onclick="toggleDarkMode()">🌙</button>
 <div class="wrapper">
-<div class="container">
+<div class="container"><button class="dark-toggle" onclick="toggleDarkMode(this)" style="position: absolute; top: 10px; left: 10px;">🌙</button><button onclick="deleteAllLogs()" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.1em; cursor: pointer; padding: 0;" title="전체삭제">🗑️</button>
 <h2>📝 기획세포 일일로그</h2>
 <input id="dateFilter" onchange="filterLogs()" type="date"/>
 <textarea id="logText" placeholder="오늘의 활동을 입력하세요..."></textarea>
@@ -152,7 +167,7 @@
 <span class="emoji" onclick="insertEmoji('✏️')">✏️</span>
 <span class="emoji" onclick="insertEmoji('✅')">✅</span>
 <span class="emoji" onclick="insertEmoji('✨')">✨</span>
-<span class="emoji" onclick="insertEmoji('⚡')">⚡</span>
+<span class="emoji" onclick="insertEmoji('💕')">💕</span>
 </div>
 <button onclick="saveLog()">✅ 기록하기</button><div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;"><select id="tagFilter" onchange="filterLogs()" style="width: 80px; min-width: 60px; padding: 8px; font-size: 1em;">
 <option value="">전체</option>
@@ -166,7 +181,8 @@
 </div>
 </div>
 <script>
-function toggleDarkMode() {
+function toggleDarkMode(btn) {
+  btn.textContent = document.body.classList.contains('dark') ? '🌙' : '☀️';
   document.body.classList.toggle("dark");
   localStorage.setItem("darkMode", document.body.classList.contains("dark"));
 }
@@ -189,7 +205,7 @@ function saveLog() {
   const text = document.getElementById("logText").value.trim();
   if (!text) return;
   const now = new Date();
-  const date = now.toISOString().split("T")[0];
+  const date = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split("T")[0];
   const time = now.toLocaleTimeString();
   const logs = loadLogs();
   logs.push({ id: Date.now(), text, date, time });
@@ -246,6 +262,14 @@ document.getElementById("logText").addEventListener("keydown", function(e) {
 });
 
 filterLogs();
+
+
+function deleteAllLogs() {
+  if (confirm("정말 모든 기록을 삭제하시겠습니까?")) {
+    localStorage.removeItem("dailyLogData");
+    filterLogs();
+  }
+}
 </script>
 </body>
 </html>
