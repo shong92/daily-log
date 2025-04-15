@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>기획세포 일일로그</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>기획세포 일일로그</title>
+<style>
     :root {
       --bg: #f8f8f8;
       --fg: #000;
@@ -57,6 +58,7 @@
       font-size: 1.2em;
       cursor: pointer;
       color: var(--fg);
+      z-index: 10;
     }
 
     h2 {
@@ -66,6 +68,7 @@
     }
 
     input[type="date"],
+    input[type="text"],
     textarea,
     button {
       width: 100%;
@@ -77,22 +80,6 @@
       border-radius: 5px;
       background: var(--card);
       color: var(--fg);
-    }
-
-    textarea::placeholder {
-      color: #aaa;
-    }
-
-    button {
-      background-color: var(--accent);
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      opacity: 0.9;
     }
 
     .emoji-picker {
@@ -108,10 +95,10 @@
     }
 
     .log-entry {
-      border-bottom: 1px solid var(--entry-border);
-      padding: 10px 0;
-      padding-right: 0;
       position: relative;
+      padding: 10px 0;
+      padding-right: 40px;
+      border-bottom: 1px solid var(--entry-border);
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -128,187 +115,220 @@
     }
 
     .delete-btn {
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      padding: 2px 5px;
+      font-size: 0.7em;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: none;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+    
       position: absolute;
       top: 10px;
       right: 10px;
       background: none;
+      border: none;
+      font-size: 1.1em;
+      cursor: pointer;
+      color: var(--accent);
+      transition: 0.2s;
+      z-index: 5;
+      display: none;
+    }
+
+    .log-entry:hover .delete-btn {
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      padding: 2px 5px;
+      font-size: 0.7em;
       border: 1px solid var(--accent);
       color: var(--accent);
-      padding: 2px 6px;
-      font-size: 0.75em;
+      background: none;
       border-radius: 4px;
       cursor: pointer;
-      transition: 0.2s;
       white-space: nowrap;
+    
+      display: block;
     }
 
-    .delete-btn:hover {
-      background-color: rgba(74,144,226,0.1);
-    }
-
-    @media (max-width: 400px) {
+    @media (hover: none) {
       .delete-btn {
-        font-size: 0.7em;
-        padding: 1px 5px;
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      padding: 2px 5px;
+      font-size: 0.7em;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: none;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+    
+        display: block !important;
       }
     }
-  </style>
+  
+.log-entry:hover .delete-btn { display: inline-block; }</style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="container">
-      <button class="dark-toggle" onclick="toggleDarkMode()">🌙</button>
-      <h2>📝 기획세포 일일로그</h2>
-      <input type="date" id="dateFilter" onchange="filterLogs()" />
-      <textarea id="logText" placeholder="🌊오늘의 활동을 입력하세요..."></textarea>
-      <div class="emoji-picker">
-        <span class="emoji" onclick="insertEmoji('😊')">😊</span>
-        <span class="emoji" onclick="insertEmoji('🔥')">🔥</span>
-        <span class="emoji" onclick="insertEmoji('💡')">💡</span>
-        <span class="emoji" onclick="insertEmoji('✏️')">✏️</span>
-        <span class="emoji" onclick="insertEmoji('✅')">✅</span>
-        <span class="emoji" onclick="insertEmoji('✨')">✨</span>
-        <span class="emoji" onclick="insertEmoji('💕')">💕</span>
-      </div>
-      <button onclick="saveLog()">✅기록하기</button>
-      <div id="logList"></div>
-    </div>
-  </div>
+<div id="passwordModal" style="
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;">
+<div style="background:white; padding: 30px; border-radius: 8px; text-align:center; width: 300px;">
+<h3>🔐 비밀번호 입력</h3>
+<input id="passwordInput" placeholder="비밀번호 입력" style="width: 100%; margin-top: 10px; padding: 8px;" type="password"/>
+<button onclick="submitPassword()" style="margin-top: 10px; width: 100%;">확인</button>
+</div>
+</div>
 
-  <script>
-    (async () => {
-      const correctHash = "5dfa4c51dcc091801d8a6b6d2aed69119239a1f4e458cc06a326c6a9b0a09576";
-      const unlockHash = "d0832287613be2ffed93a1c523735101c21d3b2b457a3d1d93f211544bb0583a";
 
-      async function sha256(text) {
-        const encoded = new TextEncoder().encode(text);
-        const buffer = await crypto.subtle.digest("SHA-256", encoded);
-        return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, "0")).join("");
-      }
+<div class="wrapper">
+<div class="container">
+<button class="dark-toggle" onclick="toggleDarkMode()">🌙</button>
+<h2>📝 기획세포 일일로그</h2>
+<input id="dateFilter" onchange="filterLogs()" type="date"/>
+<input id="searchInput" oninput="filterLogs()" placeholder="검색어를 입력하세요" type="text"/>
+<textarea id="logText" placeholder="오늘의 활동을 입력하세요..."></textarea>
+<div class="emoji-picker">
+<span class="emoji" onclick="insertEmoji('😊')">😊</span>
+<span class="emoji" onclick="insertEmoji('🔥')">🔥</span>
+<span class="emoji" onclick="insertEmoji('💡')">💡</span>
+<span class="emoji" onclick="insertEmoji('✏️')">✏️</span>
+<span class="emoji" onclick="insertEmoji('✅')">✅</span>
+<span class="emoji" onclick="insertEmoji('✨')">✨</span>
+<span class="emoji" onclick="insertEmoji('⚡')">⚡</span>
+</div>
+<button onclick="saveLog()" type="button">✅ 기록하기</button>
+<div id="logList"></div>
+</div>
+</div>
 
-      async function promptPassword() {
-        if (localStorage.getItem("dailyLogUnlocked") === "true") return;
+<script>
+const correctHash = "5dfa4c51dcc091801d8a6b6d2aed69119239a1f4e458cc06a326c6a9b0a09576";
+async function sha256(text) {
+  const encoded = new TextEncoder().encode(text);
+  const buffer = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function submitPassword() {
+  const input = document.getElementById("passwordInput").value;
+  const hashed = await sha256(input);
+  if (hashed === correctHash) {
+    document.getElementById("passwordModal").style.display = "none";
+    localStorage.setItem("dailyLogUnlocked", "true");
+    initLog();
+  } else {
+    alert("비밀번호가 틀렸습니다.");
+  }
+}
+if (localStorage.getItem("dailyLogUnlocked") === "true") {
+  window.addEventListener("DOMContentLoaded", initLog);
+} else {
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("passwordModal").style.display = "flex";
+  });
+}
 
-        if (localStorage.getItem("lockout") === "true") {
-          const unlockInput = prompt("🔒 잠금이 설정되었습니다. 잠금 해제 비밀번호를 입력하세요:");
-          const unlockTry = await sha256(unlockInput);
-          if (unlockTry === unlockHash) {
-            localStorage.removeItem("lockout");
-            localStorage.setItem("loginAttempts", "0");
-            alert("잠금이 해제되었습니다. 다시 로그인 해주세요.");
-            return promptPassword();
-          } else {
-            document.body.innerHTML = "<h2 style='text-align:center; color:red;'>잠금 해제 실패</h2>";
-            throw new Error("잠금 해제 실패");
-          }
-        }
+function initLog() {
+  const logKey = "dailyLogData";
+  const darkKey = "logAppDarkMode";
 
-        let attempts = parseInt(localStorage.getItem("loginAttempts") || "0");
-        while (attempts < 3) {
-          const input = prompt("🔒 비밀번호를 입력하세요 (4자리):");
-          const hashed = await sha256(input);
-          if (hashed === correctHash) {
-            localStorage.setItem("dailyLogUnlocked", "true");
-            return;
-          } else {
-            attempts++;
-            localStorage.setItem("loginAttempts", attempts);
-            alert(`비밀번호가 틀렸습니다. (${attempts}/3)`);
-          }
-        }
+  function loadLogs() {
+    return JSON.parse(localStorage.getItem(logKey)) || [];
+  }
 
-        localStorage.setItem("lockout", "true");
-        document.body.innerHTML = "<h2 style='text-align:center; color:red;'>잠금되었습니다. 잠금 해제 후 다시 시도하세요.</h2>";
-        throw new Error("잠금됨");
-      }
+  function saveLog() {
+    const text = document.getElementById('logText').value.trim();
+    if (!text) return;
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const time = now.toLocaleTimeString();
+    const id = Date.now();
+    const newLog = { id, text, date, time };
+    const logs = loadLogs();
+    logs.push(newLog);
+    localStorage.setItem(logKey, JSON.stringify(logs));
+    document.getElementById('logText').value = '';
+    filterLogs();
+  }
 
-      await promptPassword();
+  function deleteLog(id) {
+    let logs = loadLogs();
+    logs = logs.filter(log => log.id !== id);
+    localStorage.setItem(logKey, JSON.stringify(logs));
+    filterLogs();
+  }
 
-      // ====== 일일로그 기능 ======
-      const logKey = "dailyLogData";
-      const darkKey = "logAppDarkMode";
+  function renderLogs(filteredLogs) {
+    const logList = document.getElementById('logList');
+    logList.innerHTML = '';
+    filteredLogs.reverse().forEach(({ id, text, date, time }) => {
+      const logHTML = `
+        <div class="log-entry">
+          <div class="log-entry-content">
+            <div class="time">${date} ${time}</div>
+            <div>${text}</div>
+          </div>
+          <button class="delete-btn" onclick="deleteLog(${id})">삭제</button>
+        </div>`;
+      logList.insertAdjacentHTML('beforeend', logHTML);
+    });
+  }
 
-      function loadLogs() {
-        return JSON.parse(localStorage.getItem(logKey)) || [];
-      }
+  function filterLogs() {
+    const selectedDate = document.getElementById('dateFilter').value;
+    const allLogs = loadLogs();
+    const filtered = selectedDate
+      ? allLogs.filter(log => log.date === selectedDate)
+      : allLogs;
+    renderLogs(filtered);
+  }
 
-      function saveLog() {
-        const text = document.getElementById('logText').value.trim();
-        if (!text) return;
-        const now = new Date();
-        const date = now.toISOString().slice(0, 10);
-        const time = now.toLocaleTimeString();
-        const id = Date.now();
-        const newLog = { id, text, date, time };
-        const logs = loadLogs();
-        logs.push(newLog);
-        localStorage.setItem(logKey, JSON.stringify(logs));
-        document.getElementById('logText').value = '';
-        filterLogs();
-      }
+  document.getElementById('logText').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      saveLog();
+    }
+  });
 
-      function deleteLog(id) {
-        let logs = loadLogs();
-        logs = logs.filter(log => log.id !== id);
-        localStorage.setItem(logKey, JSON.stringify(logs));
-        filterLogs();
-      }
+  document.querySelector("button[onclick='saveLog()']").addEventListener("click", saveLog);
 
-      function renderLogs(filteredLogs) {
-        const logList = document.getElementById('logList');
-        logList.innerHTML = '';
-        filteredLogs.reverse().forEach(({ id, text, date, time }) => {
-          const logHTML = `
-            <div class="log-entry">
-              <div class="log-entry-content">
-                <div class="time">${date} ${time}</div>
-                <div>${text}</div>
-              </div>
-              <button class="delete-btn" onclick="deleteLog(${id})">삭제</button>
-            </div>`;
-          logList.insertAdjacentHTML('beforeend', logHTML);
-        });
-      }
+  window.insertEmoji = function(emoji) {
+    const textarea = document.getElementById('logText');
+    textarea.value += emoji;
+    textarea.focus();
+  };
 
-      function filterLogs() {
-        const selectedDate = document.getElementById('dateFilter').value;
-        const allLogs = loadLogs();
-        const filtered = selectedDate
-          ? allLogs.filter(log => log.date === selectedDate)
-          : allLogs;
-        renderLogs(filtered);
-      }
+  window.toggleDarkMode = function() {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    localStorage.setItem(darkKey, isDark ? "true" : "false");
+  };
 
-      document.getElementById('logText').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          saveLog();
-        }
-      });
+  function loadDarkMode() {
+    const saved = localStorage.getItem(darkKey);
+    if (saved === "true") {
+      document.body.classList.add('dark');
+    }
+  }
 
-      window.insertEmoji = function(emoji) {
-        const textarea = document.getElementById('logText');
-        textarea.value += emoji;
-        textarea.focus();
-      };
-
-      window.toggleDarkMode = function() {
-        document.body.classList.toggle('dark');
-        const isDark = document.body.classList.contains('dark');
-        localStorage.setItem(darkKey, isDark ? "true" : "false");
-      };
-
-      function loadDarkMode() {
-        const saved = localStorage.getItem(darkKey);
-        if (saved === "true") {
-          document.body.classList.add('dark');
-        }
-      }
-
-      loadDarkMode();
-      filterLogs();
-    })();
-  </script>
+  loadDarkMode();
+  filterLogs();
+}
+</script>
 </body>
 </html>
-
