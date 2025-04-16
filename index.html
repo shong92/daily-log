@@ -1,4 +1,4 @@
-
+//기획세포 기억력 감퇴 이슈 해소를 위해....
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -138,19 +138,7 @@
   <div class="wrapper">
     <div class="container">
       <button class="dark-toggle" onclick="toggleDarkMode(this)">🌙</button>
-      <button onclick="deleteAllLogs()" title="전체삭제" style="
-          position: absolute; 
-          top: 10px; 
-          right: 10px; 
-          background: none; 
-          width: auto;
-          height: auto;
-          margin: 0;
-          border: none; 
-          font-size: 1.2em; 
-          cursor: pointer; 
-          padding: 0;
-          ">🗑️</button>
+      <button onclick="deleteAllLogs()" title="전체삭제" style="position: absolute; top: 10px; right: 10px; background: none; width: auto; height: auto; margin: 0; border: none; font-size: 1.2em; cursor: pointer; padding: 0;">🗑️</button>
       <h2>📝 기획세포 일일로그</h2>
       <input type="date" id="dateFilter" onchange="filterLogs()" />
       <textarea id="logText" placeholder="🌊오늘의 활동을 입력하세요..."></textarea>
@@ -162,15 +150,17 @@
         <span class="tag tag-기타" onclick="insertTag('기타')">기타</span>
       </div>
       <button onclick="saveLog()">🤿 기록하기</button>
-      <select id="tagFilter" onchange="filterLogs()" style="width: 80px; min-width: 50px; padding: 8px; font-size: 1em;">
-        <option value="">전체</option>
-        <option value="업무">업무</option>
-        <option value="학습">학습</option>
-        <option value="운동">운동</option>
-        <option value="일상">일상</option>
-        <option value="기타">기타</option>
-      </select>
-      <input type="text" id="searchInput" placeholder="검색어를 입력하세요" oninput="filterLogs()" />
+      <div style="display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: nowrap;">
+        <select id="tagFilter" onchange="filterLogs()" style="width: 80px; flex-shrink: 0; font-size: 1em;">
+          <option value="">전체</option>
+          <option value="업무">업무</option>
+          <option value="학습">학습</option>
+          <option value="운동">운동</option>
+          <option value="일상">일상</option>
+          <option value="기타">기타</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="검색어를 입력하세요" oninput="filterLogs()" style="flex: 1;" />
+      </div>
       <div id="logList"></div>
     </div>
   </div>
@@ -212,7 +202,7 @@ function deleteLog(id) {
   filterLogs();
 }
 function deleteAllLogs() {
-  if (confirm("ㄹㅇ 삭제할 지 한번 더 생각해. 삭제할겨?")) {
+  if (confirm("진짜 삭제?")) {
     localStorage.removeItem("dailyLogData");
     filterLogs();
   }
