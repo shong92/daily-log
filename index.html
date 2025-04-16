@@ -97,6 +97,7 @@
       font-weight: bold;
       color: white;
       cursor: pointer;
+      margin-right: 1px;
     }
     .tag-업무 { background-color: #2d87f0; }
     .tag-학습 { background-color: #4caf50; }
@@ -161,7 +162,7 @@
         <span class="tag tag-기타" onclick="insertTag('기타')">기타</span>
       </div>
       <button onclick="saveLog()">🤿 기록하기</button>
-      <select id="tagFilter" onchange="filterLogs()" style="width: 80px; min-width: 60px; padding: 8px; font-size: 1em;">
+      <select id="tagFilter" onchange="filterLogs()" style="width: 80px; min-width: 50px; padding: 8px; font-size: 1em;">
         <option value="">전체</option>
         <option value="업무">업무</option>
         <option value="학습">학습</option>
