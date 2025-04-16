@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>기획세포 일일로그</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>기획세포 일일로그</title>
+<style>
     :root {
       --bg: #f8f8f8;
       --fg: #000;
@@ -135,36 +135,35 @@
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="container">
-      <button class="dark-toggle" onclick="toggleDarkMode(this)">🌙</button>
-      <button onclick="deleteAllLogs()" title="전체삭제" style="position: absolute; top: 10px; right: 10px; background: none; width: auto; height: auto; margin: 0; border: none; font-size: 1.2em; cursor: pointer; padding: 0;">🗑️</button>
-      <h2>📝 기획세포 일일로그</h2>
-      <input type="date" id="dateFilter" onchange="filterLogs()" />
-      <textarea id="logText" placeholder="🌊오늘의 활동을 입력하세요..."></textarea>
-      <div class="emoji-picker">
-        <span class="tag tag-업무" onclick="insertTag('업무')">업무</span>
-        <span class="tag tag-학습" onclick="insertTag('학습')">학습</span>
-        <span class="tag tag-운동" onclick="insertTag('운동')">운동</span>
-        <span class="tag tag-일상" onclick="insertTag('일상')">일상</span>
-        <span class="tag tag-기타" onclick="insertTag('기타')">기타</span>
-      </div>
-      <button onclick="saveLog()">🤿 기록하기</button>
-      <div style="display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: nowrap;">
-        <select id="tagFilter" onchange="filterLogs()" style="width: 80px; flex-shrink: 0; font-size: 1em;">
-          <option value="">전체</option>
-          <option value="업무">업무</option>
-          <option value="학습">학습</option>
-          <option value="운동">운동</option>
-          <option value="일상">일상</option>
-          <option value="기타">기타</option>
-        </select>
-        <input type="text" id="searchInput" placeholder="검색어를 입력하세요" oninput="filterLogs()" style="flex: 1;" />
-      </div>
-      <div id="logList"></div>
-    </div>
-  </div>
-
+<div class="wrapper">
+<div class="container">
+<button class="dark-toggle" onclick="toggleDarkMode(this)">🌙</button>
+<button onclick="deleteAllLogs()" style="position: absolute; top: 10px; right: 10px; background: none; width: auto; height: auto; margin: 0; border: none; font-size: 1.2em; cursor: pointer; padding: 0;" title="전체삭제">🗑️</button>
+<h2>📝 기획세포 일일로그</h2>
+<input id="dateFilter" onchange="filterLogs()" type="date"/>
+<textarea id="logText" placeholder="🌊오늘의 활동을 입력하세요..."></textarea>
+<div class="emoji-picker">
+<span class="tag tag-업무" onclick="insertTag('업무')">업무</span>
+<span class="tag tag-학습" onclick="insertTag('학습')">학습</span>
+<span class="tag tag-운동" onclick="insertTag('운동')">운동</span>
+<span class="tag tag-일상" onclick="insertTag('일상')">일상</span>
+<span class="tag tag-기타" onclick="insertTag('기타')">기타</span>
+</div>
+<button onclick="saveLog()">🤿 기록하기</button>
+<div style="display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: nowrap;">
+<select id="tagFilter" onchange="filterLogs()" style="width: 80px; flex-shrink: 0; font-size: 1em; padding: 10px; height: 42px; border-radius: 5px; border: 1px solid var(--border); background: var(--card); color: var(--fg); box-sizing: border-box;">
+<option value="">전체</option>
+<option value="업무">업무</option>
+<option value="학습">학습</option>
+<option value="운동">운동</option>
+<option value="일상">일상</option>
+<option value="기타">기타</option>
+</select>
+<input id="searchInput" oninput="filterLogs()" placeholder="검색어를 입력하세요" style="flex: 1; height: 42px; padding: 10px; font-size: 1em; border-radius: 5px; border: 1px solid var(--border); background: var(--card); color: var(--fg); box-sizing: border-box;" type="text"/>
+</div>
+<div id="logList"></div>
+</div>
+</div>
 <script>
 function toggleDarkMode(btn) {
   document.body.classList.toggle("dark");
