@@ -112,14 +112,20 @@
     .log-entry-content {
       padding-right: 60px;
     }
+    .log-actions {
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      gap: 6px;
+    }
     .time {
       color: #888;
       font-size: 0.85em;
     }
     .delete-btn {
-      display: none;
-      position: absolute;
-      right: 10px;
+      display: inline-block;
+      position: relative;
       width: auto;
       height: auto;
       margin: 0;
@@ -129,8 +135,44 @@
       cursor: pointer;
       padding: 0;
     }
-    .log-entry:hover .delete-btn {
+    .edit-btn {
       display: inline-block;
+      position: relative;
+      width: auto;
+      height: auto;
+      margin: 0;
+      font-size: 1.1em;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    .log-entry:hover .log-actions {
+      display: inline-flex;
+    }
+    .log-entry.editing .log-actions {
+      display: inline-flex;
+    }
+    .log-entry.editing .log-entry-content {
+      padding-right: 0;
+    }
+    .edit-input {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--card);
+      color: var(--fg);
+      min-height: 80px;
+      resize: vertical;
+    }
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -173,6 +215,8 @@ function toggleDarkMode(btn) {
 if (localStorage.getItem("darkMode") === "true") {
   document.body.classList.add("dark");
 }
+
+let editingState = { id: null, text: "" };
 
 function insertTag(tag) {
   const textarea = document.getElementById("logText");
@@ -227,15 +271,61 @@ function filterLogs() {
   list.innerHTML = "";
   filtered.reverse().forEach(log => {
     const tagSpan = log.text.replace(/#(업무|학습|운동|일상|기타)/g, '<span class="tag tag-$1">$1</span>');
-    list.innerHTML += `
-      <div class="log-entry">
-        <div class="log-entry-content">
-          <div class="time">${log.date} ${log.time}</div>
-          <div>${tagSpan}</div>
-        </div>
-        <button class="delete-btn" onclick="deleteLog(${log.id})">🗑️</button>
-      </div>`;
+    if (editingState.id === log.id) {
+      list.innerHTML += `
+        <div class="log-entry editing" ondblclick="event.stopPropagation()">
+          <div class="log-entry-content">
+            <div class="time">${log.date} ${log.time}</div>
+            <textarea class="edit-input" oninput="updateEditingText(this.value)">${editingState.text}</textarea>
+            <div class="edit-actions">
+              <button onclick="saveEdit(${log.id})">저장</button>
+              <button onclick="cancelEdit()">취소</button>
+            </div>
+          </div>
+          <div class="log-actions">
+            <button class="edit-btn" onclick="startEdit(${log.id})">✏️</button>
+            <button class="delete-btn" onclick="deleteLog(${log.id})">🗑️</button>
+          </div>
+        </div>`;
+    } else {
+      list.innerHTML += `
+        <div class="log-entry" ondblclick="startEdit(${log.id})">
+          <div class="log-entry-content">
+            <div class="time">${log.date} ${log.time}</div>
+            <div>${tagSpan}</div>
+          </div>
+          <div class="log-actions">
+            <button class="edit-btn" onclick="startEdit(${log.id})">✏️</button>
+            <button class="delete-btn" onclick="deleteLog(${log.id})">🗑️</button>
+          </div>
+        </div>`;
+    }
   });
+}
+function startEdit(id) {
+  const logs = loadLogs();
+  const target = logs.find(log => log.id === id);
+  if (!target) return;
+  editingState = { id, text: target.text };
+  filterLogs();
+}
+function updateEditingText(value) {
+  editingState.text = value;
+}
+function cancelEdit() {
+  editingState = { id: null, text: "" };
+  filterLogs();
+}
+function saveEdit(id) {
+  const newText = editingState.text.trim();
+  if (!newText) return;
+  const logs = loadLogs();
+  const index = logs.findIndex(log => log.id === id);
+  if (index === -1) return;
+  logs[index].text = newText;
+  localStorage.setItem("dailyLogData", JSON.stringify(logs));
+  editingState = { id: null, text: "" };
+  filterLogs();
 }
 document.getElementById("logText").addEventListener("keydown", function(e) {
   if (e.key === "Enter" && !e.shiftKey) {
